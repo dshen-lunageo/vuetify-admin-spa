@@ -1,0 +1,60 @@
+{
+  "logout": "Logout",
+  "not_found": "Not found",
+  "close": "Close",
+  "file_manager": "File manager",
+  "datatable": {
+    "search": "Search",
+    "add_filter": "Add filter",
+    "selected_items": "1 item selected | {count} items selected"
+  },
+  "pages": {
+    "list": "List of {resource}",
+    "create": "Create new {resource}",
+    "show": "Detail of {resource} {label}",
+    "edit": "Edit {resource} {label}",
+    "not_found": "{resource} #{id} not found"
+  },
+  "actions": {
+    "list": "List",
+    "create": "Create",
+    "show": "Show",
+    "edit": "Edit",
+    "delete": "Delete",
+    "export": "Export",
+    "clone": "Clone",
+    "add": "Add",
+    "remove": "Remove",
+    "move": "Move",
+    "associate": "Associate",
+    "dissociate": "Dissociate",
+    "locale": "Locale",
+    "cancel": "Cancel",
+    "save": "Save",
+    "save_and_add": "Save and add",
+    "save_and_show": "Save and show",
+    "save_and_edit": "Save and edit"
+  },
+  "messages": {
+    "created": "New {resource} successfully created !",
+    "updated": "{resource} #{id} successfully updated !",
+    "deleted": "{resource} #{id} successfully deleted !",
+    "moved": "{resource} #{id} successfully moved !",
+    "updated_many": "{count} {resource} successfully updated !",
+    "deleted_many": "{count} {resource} successfully deleted !"
+  },
+  "confirm": {
+    "yes": "Yes",
+    "no": "No",
+    "delete_title": "Delete {resource} #{id} ?",
+    "delete_message": "You are about deleting {resource} #{id}. This operation is irreversible !",
+    "delete_many_title": "Delete {count} {resource} ?",
+    "delete_many_message": "You are about deleting {count} {resource}. This operation is irreversible !",
+    "dissociate_title": "Dissociate from {targetResource} #{targetId} ?",
+    "dissociate_message": "You are about dissociate {targetResource} #{targetId} from {sourceResource} #{sourceId}."
+  },
+  "forms": {
+    "none": "None",
+    "required_field": "{field] is required"
+  }
+}

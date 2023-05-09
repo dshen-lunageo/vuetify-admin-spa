@@ -1,0 +1,59 @@
+{
+  "logout": "Se déconnecter",
+  "close": "Fermer",
+  "file_manager": "Gestionnaire de fichiers",
+  "datatable": {
+    "search": "Rechercher",
+    "add_filter": "Ajouter un filtre",
+    "selected_items": "1 élément sélectionné | {count} éléments sélectionnés"
+  },
+  "pages": {
+    "list": "Liste {resource}",
+    "create": "Créer {resource}",
+    "show": "Détail {resource} {label}",
+    "edit": "Editer {resource} {label}",
+    "not_found": "{resource} #{id} inexistant"
+  },
+  "actions": {
+    "list": "Liste",
+    "create": "Créer",
+    "show": "Afficher",
+    "edit": "Éditer",
+    "delete": "Supprimer",
+    "export": "Exporter",
+    "clone": "Dupliquer",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "move": "Déplacer",
+    "associate": "Associer",
+    "dissociate": "Dissocier",
+    "locale": "Langue",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "save_and_add": "Enregistrer et ajouter",
+    "save_and_show": "Enregistrer et afficher",
+    "save_and_edit": "Enregistrer et editer"
+  },
+  "messages": {
+    "created": "{resource} créé avec succès !",
+    "updated": "{resource} #{id} mis à jour avec succès !",
+    "deleted": "{resource} #{id} supprimé avec succès !",
+    "moved": "{resource} #{id} déplacé avec succès !",
+    "updated_many": "{count} {resource} mis à jour avec succès !",
+    "deleted_many": "{count} {resource} supprimé avec succès !"
+  },
+  "confirm": {
+    "yes": "Oui",
+    "no": "Non",
+    "delete_title": "Supprimer {resource} #{id} ?",
+    "delete_message": "Vous êtes sur le point de supprimer {resource} #{id}. Cette opération est irréversible !",
+    "delete_many_title": "Supprimer {count} {resource} ?",
+    "delete_many_message": "Vous êtes sur le point de supprimer {count} {resource}. Cette opération est irréversible !",
+    "dissociate_title": "Dissocier {targetResource} #{targetId} ?",
+    "dissociate_message": "Vous êtes sur le point de dissocier {targetResource} #{targetId} de {sourceResource} #{sourceId}."
+  },
+  "forms": {
+    "none": "Aucun",
+    "required_field": "Le champ {field} est requis"
+  }
+}
