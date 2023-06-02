@@ -38,7 +38,9 @@
 /**
  * Admin composable component layout with one slot for each region.
  */
-export default {};
+export default {
+  name: "VaLayout",
+};
 </script>
 
 <style>

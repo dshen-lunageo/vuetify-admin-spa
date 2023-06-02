@@ -3,11 +3,13 @@
 </template>
 
 <script>
+import resource from "vuetify-admin/src/mixins/resource";
 /**
  * Default admin component for breadcrumbs, will generate automatically hierarchical links from current route.
  * Support hierarchical CRUD structure.
  */
 export default {
+  mixins: [resource],
   computed: {
     items() {
       return this.$route.matched.map((route) => {

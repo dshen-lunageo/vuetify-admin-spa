@@ -17,56 +17,58 @@ let {
 export default ({ provider, resource, i18n }) => {
   let { name, api, getName } = resource;
 
-  Object.values(methods).forEach(
-    (action) =>
-      (storeActions[action] = async ({ state, commit, dispatch }, params) => {
-        try {
-          if (!provider) {
-            throw new Error("No data provider defined");
-          }
-
-          if (!provider[action]) {
-            throw new Error(`Data provider action '${action}' not implemented`);
-          }
-
-          /**
-           * Only set global loading when read actions
-           */
-          if ([GET_LIST, GET_TREE, GET_NODES, GET_ONE].includes(action)) {
-            commit("api/setLoading", true, {
-              root: true,
-            });
-          }
-
-          let response = await provider[action](api || name, {
-            locale: state.locale,
-            ...params,
-          });
-
-          commit("api/setLoading", false, {
-            root: true,
-          });
-
-          /**
-           * Apply success message on writes operations
-           */
-          dispatch("showSuccess", { action, params });
-          return Promise.resolve(response);
-        } catch (e) {
-          commit("api/setLoading", false, {
-            root: true,
-          });
-
-          dispatch("showError", e.message);
-          dispatch("auth/checkError", e, {
-            root: true,
-          });
-          return Promise.reject(e);
+  /**
+   * Generate store actions from provider
+   */
+  Object.values(methods).forEach((action) => {
+    storeActions[action] = async ({ state, commit, dispatch }, params) => {
+      try {
+        if (!provider) {
+          throw new Error("No data provider defined");
         }
-      })
-  );
 
-  return {
+        if (!provider[action]) {
+          throw new Error(`Data provider action '${action}' not implemented`);
+        }
+
+        /**
+         * Only set global loading when read actions
+         */
+        if ([GET_LIST, GET_TREE, GET_NODES, GET_ONE].includes(action)) {
+          commit("api/setLoading", true, {
+            root: true,
+          });
+        }
+
+        let response = await provider[action](api || name, {
+          locale: state.locale,
+          ...params,
+        });
+
+        commit("api/setLoading", false, {
+          root: true,
+        });
+
+        /**
+         * Apply success message on writes operations
+         */
+        dispatch("showSuccess", { action, params });
+        return Promise.resolve(response);
+      } catch (e) {
+        commit("api/setLoading", false, {
+          root: true,
+        });
+
+        dispatch("showError", e.message);
+        dispatch("auth/checkError", e, {
+          root: true,
+        });
+        return Promise.reject(e);
+      }
+    };
+  });
+
+  const result = {
     namespaced: true,
     state: {
       item: null,
@@ -158,4 +160,6 @@ export default ({ provider, resource, i18n }) => {
       },
     },
   };
+
+  return result;
 };

@@ -1,3 +1,5 @@
+import snakeCase from "lodash/snakeCase";
+
 /**
  * For any resource related components.
  */
@@ -38,6 +40,28 @@ export default {
         !this.currentResource.routes ||
         this.currentResource.routes.includes(route)
       );
+    },
+    /**
+     * Dynamic, multiple parent resource ids
+     */
+    buildParentResourceIds(resourceName, params = {}) {
+      // If has parent resource
+      if (this.$route.meta.parentResource) {
+        // Get parent resource object
+        const resource = this.$admin.getResource(resourceName);
+        // Generate parent resource id key
+        const itemIdKey = snakeCase(`${resource.singularName}Id`);
+        // Merge parent resource id into filter if exists
+        if (this.$route.params[itemIdKey]) {
+          params[itemIdKey] = this.$route.params[itemIdKey];
+        }
+
+        if (resource.parentResource) {
+          this.buildParentResourceIds(resource.parentResource, params);
+        }
+      }
+
+      return params;
     },
   },
 };

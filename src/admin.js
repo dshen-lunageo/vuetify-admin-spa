@@ -49,133 +49,157 @@ export default class VuetifyAdmin {
         )
       );
 
+    const formatResource = (r, parentResource) => {
+      r = typeof r === "string" ? { name: r } : r;
+
+      /**
+       * Get valid routes
+       */
+      let routes = ["list", "show", "create", "edit"].filter((name) => {
+        return !r.routes || r.routes.includes(name);
+      });
+
+      /**
+       * Get valid actions
+       */
+      let actions = ["list", "show", "create", "edit", "delete"].filter(
+        (name) => {
+          if ((r.actions || []).length) {
+            return r.actions.includes(name);
+          }
+
+          if ((r.except || []).length) {
+            return !r.except.includes(name);
+          }
+
+          return true;
+        }
+      );
+
+      let nameKey = `resources.${r.name}.name`;
+
+      /**
+       * Get localized resource name if key exists
+       */
+      let getName = (count) =>
+        i18n.te(nameKey)
+          ? i18n.tc(nameKey, count)
+          : upperFirst(lowerCase(r.name));
+
+      const result = {
+        ...r,
+        icon: r.icon || "mdi-view-grid",
+        parentResource,
+        routes,
+        actions,
+        getName,
+        singularName: getName(1),
+        pluralName: getName(10),
+        getTitle: (action, item = null) => {
+          let titleKey = `resources.${r.name}.titles.${action}`;
+
+          if (item) {
+            return (
+              (i18n.te(titleKey)
+                ? i18n.t(titleKey, item)
+                : i18n.t(`va.pages.${action}`, {
+                    resource: getName(1).toLowerCase(),
+                    label:
+                      typeof r.label === "function"
+                        ? r.label(item)
+                        : item[r.label],
+                  })) + ` #${item.id}`
+            );
+          }
+          return i18n.te(titleKey)
+            ? i18n.t(titleKey)
+            : i18n.t(`va.pages.${action}`, {
+                resource: getName(action === "list" ? 10 : 1).toLowerCase(),
+              });
+        },
+        canAction: (action) => {
+          /**
+           * Test if action exist for this resource
+           */
+          if (!actions.includes(action)) {
+            return false;
+          }
+
+          /**
+           * Use custom action if defined
+           */
+          if (canAction) {
+            let result = canAction({
+              resource: r,
+              action,
+              can: this.can,
+            });
+
+            /**
+             * If valid boolean return this value instead of default next behavior
+             */
+            if (typeof result === "boolean") {
+              return result;
+            }
+          }
+
+          /**
+           * OK if no permissions set
+           */
+          if (!r.permissions) {
+            return true;
+          }
+
+          /**
+           * Get permissions for asked action
+           */
+          let permissions = (r.permissions || [])
+            .filter((p) => {
+              return typeof p === "string" || p.actions.includes(action);
+            })
+            .map((p) => {
+              return typeof p === "string" ? p : p.name;
+            });
+
+          // Test if current user can access
+          return permissions.length && this.can(permissions);
+        },
+      };
+
+      return result;
+    };
+
     /**
      * Format usable resources object
      */
-    this.resources = resources
-      .map((r) => {
-        return typeof r === "string"
-          ? {
-              name: r,
-            }
-          : r;
-      })
-      .map((r) => {
-        /**
-         * Get valid routes
-         */
-        let routes = ["list", "show", "create", "edit"].filter((name) => {
-          return !r.routes || r.routes.includes(name);
-        });
-
-        /**
-         * Get valid actions
-         */
-        let actions = ["list", "show", "create", "edit", "delete"].filter(
-          (name) => {
-            if ((r.actions || []).length) {
-              return r.actions.includes(name);
-            }
-
-            if ((r.except || []).length) {
-              return !r.except.includes(name);
-            }
-
-            return true;
-          }
-        );
-
-        let nameKey = `resources.${r.name}.name`;
-
-        let getName = (count) =>
-          i18n.te(nameKey)
-            ? i18n.tc(nameKey, count)
-            : upperFirst(lowerCase(r.name));
-
-        return {
-          ...r,
-          icon: r.icon || "mdi-view-grid",
-          routes,
-          actions,
-          getName,
-          singularName: getName(1),
-          pluralName: getName(10),
-          getTitle: (action, item = null) => {
-            let titleKey = `resources.${r.name}.titles.${action}`;
-
-            if (item) {
-              return (
-                (i18n.te(titleKey)
-                  ? i18n.t(titleKey, item)
-                  : i18n.t(`va.pages.${action}`, {
-                      resource: getName(1).toLowerCase(),
-                      label:
-                        typeof r.label === "function"
-                          ? r.label(item)
-                          : item[r.label],
-                    })) + ` #${item.id}`
-              );
-            }
-            return i18n.te(titleKey)
-              ? i18n.t(titleKey)
-              : i18n.t(`va.pages.${action}`, {
-                  resource: getName(action === "list" ? 10 : 1).toLowerCase(),
-                });
-          },
-          canAction: (action) => {
-            /**
-             * Test if action exist for this resource
-             */
-            if (!actions.includes(action)) {
-              return false;
-            }
-
-            /**
-             * Use custom action if defined
-             */
-            if (canAction) {
-              let result = canAction({
-                resource: r,
-                action,
-                can: this.can,
-              });
-
-              /**
-               * If valid boolean return this value instead of default next behavior
-               */
-              if (typeof result === "boolean") {
-                return result;
-              }
-            }
-
-            /**
-             * OK if no permissions set
-             */
-            if (!r.permissions) {
-              return true;
-            }
-
-            /**
-             * Get permissions for asked action
-             */
-            let permissions = (r.permissions || [])
-              .filter((p) => {
-                return typeof p === "string" || p.actions.includes(action);
-              })
-              .map((p) => {
-                return typeof p === "string" ? p : p.name;
-              });
-
-            // Test if current user can access
-            return permissions.length && this.can(permissions);
-          },
-        };
+    const formatResources = (resources, parentResource) => {
+      return resources.map((r) => {
+        if (r.children) {
+          r.children = formatResources(r.children, r.name);
+        }
+        return formatResource(r, parentResource);
       });
+    };
+
+    const indexResources = (resources, resourceDict = {}) => {
+      return resources.reduce((acc, resource) => {
+        acc[resource.name] = resource;
+        if (resource.children) {
+          acc = { ...acc, ...indexResources(resource.children, acc) };
+        }
+        return acc;
+      }, resourceDict);
+    };
+
+    const formattedResources = formatResources(resources);
+
+    this.resources = formattedResources;
+    this.indexedResources = indexResources(formattedResources);
 
     /**
      * Get full resource object meta from name
      */
-    this.getResource = (name) => this.resources.find((r) => r.name === name);
+    this.getResource = (name) => this.indexedResources[name];
 
     /**
      * Get label source, humanize it if not found
@@ -267,8 +291,8 @@ export default class VuetifyAdmin {
     /**
      * Add API resources modules dynamically
      */
-    if (this.dataProvider) {
-      this.resources.forEach((resource) =>
+    const registerResourceModule = (resources) => {
+      resources.forEach((resource) => {
         store.registerModule(
           resource.name,
           resourceCrudModule({
@@ -276,30 +300,39 @@ export default class VuetifyAdmin {
             resource,
             i18n,
           })
-        )
-      );
+        );
+
+        if (resource.children) {
+          registerResourceModule(resource.children);
+        }
+      });
+    };
+
+    if (this.dataProvider) {
+      registerResourceModule(this.resources);
     }
 
     /**
      * Add resources routes dynamically
      */
-    routes.children = this.resources
-      .map((resource) =>
-        resourceCrudRoutes({
-          store,
-          i18n,
-          resource,
-          title: this.title,
-        })
-      )
-      .concat(
-        (routes.children || []).map((r) => {
-          r.meta = { ...(r.meta || {}), authenticated: true };
-          return r;
-        })
-      );
+    const resourceRoutes = this.resources.map((resource) =>
+      resourceCrudRoutes({
+        store,
+        i18n,
+        resource,
+        title: this.title,
+      })
+    );
 
-    router.addRoutes([routes]);
+    // Merge resources routes with explicit routes
+    routes.children = resourceRoutes.concat(
+      (routes.children || []).map((r) => {
+        r.meta = { ...(r.meta || {}), authenticated: true };
+        return r;
+      })
+    );
+
+    router.addRoute(routes);
 
     /**
      * Global confirm dialog function

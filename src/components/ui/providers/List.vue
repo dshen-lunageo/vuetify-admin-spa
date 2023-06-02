@@ -170,12 +170,7 @@ export default {
       default() {
         return (
           get(this.$admin.options, "list.itemsPerPageOptions") || [
-            5,
-            10,
-            15,
-            25,
-            50,
-            100,
+            5, 10, 15, 25, 50, 100,
           ]
         );
       },
@@ -443,6 +438,7 @@ export default {
 
       this.$router.push({ query }).catch(() => {});
     },
+
     async fetchData() {
       if (!this.loaded || isEmpty(this.listState.options)) {
         return;
@@ -469,6 +465,8 @@ export default {
           ...(!this.disableItemsPerPage && { perPage: itemsPerPage }),
         };
       }
+
+      params.filter = this.buildParentResourceIds(this.resource, params.filter);
 
       /**
        * Load paginated and sorted data list

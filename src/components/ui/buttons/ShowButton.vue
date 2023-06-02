@@ -7,7 +7,7 @@
     :color="color || 'info'"
     text
     exact
-    :to="getRoute('show', { params: { id: item.id } })"
+    :to="getItemRoute('show', { itemId: item.id })"
     @click="onClick"
   ></va-action-button>
 </template>

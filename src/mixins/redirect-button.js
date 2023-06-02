@@ -29,5 +29,19 @@ export default {
       }
       return null;
     },
+    getItemRoute(action, { itemId }, params = {}) {
+      if (!this.disableRedirect && this.hasRoute(action)) {
+        const result = {
+          name: `${this.resource}_${action}`,
+          params: {
+            [this.$route.meta.itemIdKey]: itemId,
+            ...params,
+          },
+        };
+
+        return result;
+      }
+      return null;
+    },
   },
 };
