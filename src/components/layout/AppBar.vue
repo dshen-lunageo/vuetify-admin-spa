@@ -12,7 +12,8 @@
       @event toggle
     -->
     <v-app-bar-nav-icon @click.stop="$emit('toggle')" />
-    <v-toolbar-title class="ml-0 pl-4" style="width: 200px">
+    <v-toolbar-title class="ml-0 pl-4 d-flex align-center">
+      <slot name="logo"></slot>
       <span class="hidden-sm-and-down">{{ title || $admin.title }}</span>
     </v-toolbar-title>
     <v-row v-if="headerMenu.length && $vuetify.breakpoint.lgAndUp">
@@ -33,7 +34,8 @@
       </v-col>
     </v-row>
     <v-spacer />
-    <div>
+    <div class="d-flex align-center">
+      <slot name="actions"></slot>
       <v-menu offset-y v-if="!disableCreate && createResourceLinks.length">
         <template v-slot:activator="{ on }">
           <v-btn icon small v-on="on" :title="$t('va.actions.create')">

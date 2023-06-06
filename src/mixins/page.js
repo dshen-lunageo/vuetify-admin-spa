@@ -13,7 +13,7 @@ export default {
 
     actions: {
       type: Array,
-      default: () => ["list", "show", "clone", "delete"],
+      default: () => ["list", "show", "edit", "clone", "delete"],
     },
 
     hideActions: {
