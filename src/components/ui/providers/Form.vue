@@ -14,6 +14,15 @@ import set from "lodash/set";
  * It's the better place for made heavy usage of any VA inputs.
  * Use injection which allowing unique global v-model for all inputs.
  */
+
+/**
+ * Data flow for form:
+ * 1. Form component: Initialize form model with value (v-model)
+ * 2. Input mixin: **Initialize input** with value (v-model)
+ * 3. Input mixin: **Update input** with value from item/model when formState injected
+ *    1) Form: Update form model by invoking formState.update
+ *    2) Input mixin: **Update input**
+ */
 export default {
   mixins: [Resource],
   provide() {
@@ -71,6 +80,11 @@ export default {
           this.formState.model = model;
 
           /**
+           * Update item if provided, useful for updating nested inputs.
+           */
+          set(this.formState.item, source, value);
+
+          /**
            * Send model update, called after each single input change.
            */
           this.$emit("input", model);
@@ -83,6 +97,9 @@ export default {
   },
   watch: {
     item(val) {
+      /**
+       * Invoked when item is updated
+       */
       if (!val) {
         this.formState.model = this.originalValue;
       }
@@ -90,6 +107,9 @@ export default {
     },
     value: {
       handler(val) {
+        /**
+         * Invoked when model is updated
+         */
         if (val) {
           this.formState.model = val;
         }

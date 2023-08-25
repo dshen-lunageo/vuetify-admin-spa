@@ -35,6 +35,9 @@ export default {
     },
     formState: {
       handler(val) {
+        /**
+         * Invoked when the formState is injected, for form itself and all descendant input components.
+         */
         if (val && this.acceptValue) {
           /**
            * Initialize value & errors
