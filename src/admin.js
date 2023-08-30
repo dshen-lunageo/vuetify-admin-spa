@@ -242,6 +242,7 @@ export default class VuetifyAdmin {
 
         return {
           icon: icon || resource.icon,
+          resource: name,
           text: text || (action === "list" ? pluralName : singularName),
           link: { name: `${name}_${action}` },
         };
