@@ -118,7 +118,19 @@ export default {
       immediate: true,
     },
   },
+  created() {
+    window.addEventListener('beforeunload', this.unload);
+  },
+  destroyed() {
+    window.removeEventListener('beforeunload', this.unload);
+  },
   methods: {
+    unload(event) {
+      if (this.$store.state.form.hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = 'You have unsaved changes. Do you want to leave without saving?';
+      }
+    },
     onSubmit() {
       if (this.disableRedirect) {
         this.save();
@@ -152,6 +164,11 @@ export default {
          * Sent after success saving.
          */
         this.$emit("saved");
+
+        /**
+         * Remove unsaved changes after saving success.
+         */
+        this.$store.commit('form/removeUnsavedChanges');
 
         switch (redirect) {
           case "list":

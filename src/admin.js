@@ -6,6 +6,7 @@ import messages from "./store/messages";
 import auth from "./store/auth";
 import guest from "./store/guest";
 import api from "./store/api";
+import form from "./store/form";
 
 import resourceCrudModule from "./store/resource";
 import resourceCrudRoutes from "./router/resource";
@@ -287,7 +288,8 @@ export default class VuetifyAdmin {
     store.registerModule(
       "auth",
       this.authProvider ? auth(this.authProvider, router) : guest
-    );
+      );
+    store.registerModule("form", form);
 
     /**
      * Add API resources modules dynamically

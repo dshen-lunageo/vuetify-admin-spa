@@ -122,8 +122,36 @@ const buildResourceRoute = ({
           next();
         },
         beforeRouteLeave(to, from, next) {
-          store.commit(`${name}/removeItem`);
-          next();
+          if (store.state.form.hasUnsavedChanges) {
+            const answer = window.confirm('You have unsaved changes. Do you want to leave without saving?');
+            if (!answer) {
+              next(false);
+            } else {
+              store.commit('form/removeUnsavedChanges');
+              store.commit(`${name}/removeItem`);
+              next();
+            }
+          } else {
+            store.commit(`${name}/removeItem`);
+            next();
+          }
+        },
+        beforeRouteUpdate(to, from, next) {
+          if (to.name !== from.name) {
+            next();
+          }
+
+          if (store.state.form.hasUnsavedChanges) {
+            const answer = window.confirm('You have unsaved changes. Do you want to leave without saving?');
+            if (!answer) {
+              next(false);
+            } else {
+              store.commit('form/removeUnsavedChanges');
+              next();
+            }
+          } else {
+            next();
+          }
         },
       },
       meta: {
