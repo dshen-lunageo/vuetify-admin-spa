@@ -118,11 +118,13 @@ export default {
       immediate: true,
     },
   },
-  created() {
+  mounted() {
     window.addEventListener('beforeunload', this.unload);
+    document.addEventListener("keydown", this.doSave);
   },
-  destroyed() {
+  beforeDestroy() {
     window.removeEventListener('beforeunload', this.unload);
+    document.removeEventListener("keydown", this.doSave);
   },
   methods: {
     unload(event) {
@@ -130,6 +132,14 @@ export default {
         event.preventDefault();
         event.returnValue = 'You have unsaved changes. Do you want to leave without saving?';
       }
+    },
+    doSave(event) {
+      if (!(event.keyCode === 83 && (event.ctrlKey || event.metaKey))) {
+        return;
+      }
+      
+      event.preventDefault();
+      this.onSubmit();
     },
     onSubmit() {
       if (this.disableRedirect) {
