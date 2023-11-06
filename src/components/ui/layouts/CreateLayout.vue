@@ -1,7 +1,10 @@
 <template>
   <va-action-page :title="title">
-    <template slot="actions">
-      <va-list-button :resource="resource"></va-list-button>
+    <template slot="actions" v-if="showActions">
+      <va-list-button
+        :resource="resource"
+        v-if="actions.includes('list')"
+      ></va-list-button>
       <!-- @slot Additional custom action buttons placeholder. -->
       <slot name="actions"></slot>
       <va-locale-button :resource="resource"></va-locale-button>

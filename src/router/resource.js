@@ -1,9 +1,26 @@
 import camelCase from "lodash/camelCase";
 import kebabCase from "lodash/kebabCase";
 import upperFirst from "lodash/upperFirst";
+import snakeCase from "lodash/snakeCase";
 
-export default ({ store, i18n, resource, title }) => {
-  let { name, include, routes, translatable, getTitle, pluralName } = resource;
+const buildResourceRoute = ({
+  store,
+  i18n,
+  resource,
+  title,
+  isRootPath = true,
+}) => {
+  let {
+    name,
+    include,
+    routes,
+    translatable,
+    getTitle,
+    singularName,
+    pluralName,
+  } = resource;
+
+  const itemIdKey = snakeCase(`${singularName}Id`);
 
   const setTitle = (to, action, item = null) => {
     to.meta.title = getTitle(action, item);
@@ -20,19 +37,20 @@ export default ({ store, i18n, resource, title }) => {
    * Action route builder
    */
   const buildRoute = (action, path) => {
-    return {
+    const route = {
       path,
       name: `${name}_${action}`,
       props: true,
       component: {
-        props: ["id"],
+        props: ["id", itemIdKey],
         render(c) {
           let componentName = `${upperFirst(camelCase(name))}${upperFirst(
             action
           )}`;
 
           let props = {
-            id: this.id,
+            id: this[itemIdKey],
+            [itemIdKey]: this[itemIdKey],
             title: this.$route.meta.title,
             resource,
             item: store.state[name].item,
@@ -59,7 +77,9 @@ export default ({ store, i18n, resource, title }) => {
           /**
            * Initialize from query if available
            */
-          let id = to.params.id || to.query.source;
+
+          // TODO: Optimize checking to.query.source
+          let id = to.params[itemIdKey] || to.query.source;
 
           if (id) {
             /**
@@ -102,23 +122,67 @@ export default ({ store, i18n, resource, title }) => {
           next();
         },
         beforeRouteLeave(to, from, next) {
-          store.commit(`${name}/removeItem`);
-          next();
+          if (store.state.form.hasUnsavedChanges) {
+            const answer = window.confirm('You have unsaved changes. Do you want to leave without saving?');
+            if (!answer) {
+              next(false);
+            } else {
+              store.commit('form/removeUnsavedChanges');
+              store.commit(`${name}/removeItem`);
+              next();
+            }
+          } else {
+            store.commit(`${name}/removeItem`);
+            next();
+          }
+        },
+        beforeRouteUpdate(to, from, next) {
+          if (to.name !== from.name) {
+            next();
+          }
+
+          if (store.state.form.hasUnsavedChanges) {
+            const answer = window.confirm('You have unsaved changes. Do you want to leave without saving?');
+            if (!answer) {
+              next(false);
+            } else {
+              store.commit('form/removeUnsavedChanges');
+              next();
+            }
+          } else {
+            next();
+          }
         },
       },
       meta: {
         authenticated: true,
         resource: name,
+        parentResource: resource.parentResource,
         translatable,
+        itemIdKey,
       },
     };
+
+    if (resource.children && action === "show") {
+      route.children = resource.children.map((r) =>
+        buildResourceRoute({
+          store,
+          i18n,
+          resource: r,
+          title,
+          isRootPath: false,
+        })
+      );
+    }
+
+    return route;
   };
 
   /**
    * Return crud routes for this resource
    */
-  return {
-    path: `/${kebabCase(name)}`,
+  const result = {
+    path: `${isRootPath ? "/" : ""}${kebabCase(name)}`,
     component: {
       render(c) {
         return c("router-view");
@@ -130,10 +194,14 @@ export default ({ store, i18n, resource, title }) => {
     children: [
       { name: "list", path: "" },
       { name: "create", path: "create" },
-      { name: "show", path: ":id" },
-      { name: "edit", path: ":id/edit" },
+      { name: "show", path: `:${itemIdKey}` },
+      { name: "edit", path: `:${itemIdKey}/edit` },
     ]
       .filter(({ name }) => routes.includes(name))
       .map(({ name, path }) => buildRoute(name, path)),
   };
+
+  return result;
 };
+
+export default buildResourceRoute;

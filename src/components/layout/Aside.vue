@@ -12,7 +12,7 @@
         <h3 class="display-1">
           <portal-target name="aside-title"></portal-target>
         </h3>
-        <v-btn class="close" icon @click="opened = false">
+        <v-btn class="close" icon @click="onClick">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </div>
@@ -47,6 +47,13 @@ export default {
     };
   },
   methods: {
+    onClick() {
+      /**
+       * Remove unsaved changes when closing the aside.
+       */
+      this.$store.commit('form/removeUnsavedChanges');
+      this.opened = false
+    },
     handleUpdate(newContent) {
       this.opened = newContent;
     },

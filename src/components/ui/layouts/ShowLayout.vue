@@ -1,12 +1,25 @@
 <template>
   <va-action-page :title="title">
-    <template slot="actions">
-      <va-list-button :resource="resource" :item="item"></va-list-button>
-      <va-edit-button :resource="resource" :item="item"></va-edit-button>
+    <template slot="actions" v-if="showActions">
+      <va-list-button
+        v-if="actions.includes('list')"
+        :resource="resource"
+        :item="item"
+      ></va-list-button>
+      <va-edit-button
+        v-if="actions.includes('edit')"
+        :resource="resource"
+        :item="item"
+      ></va-edit-button>
       <!-- @slot Additional custom action buttons placeholder. -->
       <slot name="actions"></slot>
-      <va-clone-button :resource="resource" :item="item"></va-clone-button>
+      <va-clone-button
+        v-if="actions.includes('clone')"
+        :resource="resource"
+        :item="item"
+      ></va-clone-button>
       <va-delete-button
+        v-if="actions.includes('delete')"
         :resource="resource"
         :item="item"
         redirect

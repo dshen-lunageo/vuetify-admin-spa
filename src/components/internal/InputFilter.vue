@@ -36,6 +36,9 @@ export default {
           "rating",
           "select",
           "autocomplete",
+          "checkbox",
+          "datepicker",
+          "daterangepicker",
         ].includes(v),
     },
     /**

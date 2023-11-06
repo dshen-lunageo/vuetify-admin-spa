@@ -135,6 +135,7 @@ import Search from "../../../mixins/search";
 import FormFilter from "../../internal/FormFilter";
 import isEmpty from "lodash/isEmpty";
 import get from "lodash/get";
+import isEqual from "lodash/isEqual";
 
 /**
  * List data iterator component, perfect for list CRUD page as well as any resource browsing standalone component.
@@ -142,6 +143,7 @@ import get from "lodash/get";
  * The list layout on default slot is fully customizable and can be used for separate `VaDataTable` component.
  */
 export default {
+  name: "VaListProvider",
   mixins: [Resource, Search],
   components: {
     FormFilter,
@@ -170,12 +172,7 @@ export default {
       default() {
         return (
           get(this.$admin.options, "list.itemsPerPageOptions") || [
-            5,
-            10,
-            15,
-            25,
-            50,
-            100,
+            5, 10, 15, 25, 50, 100,
           ]
         );
       },
@@ -269,7 +266,7 @@ export default {
       /**
        * Get clean filter, do not take empty value but booleans
        */
-      return Object.keys(this.currentFilter).reduce((o, key) => {
+      let filter = Object.keys(this.currentFilter).reduce((o, key) => {
         let value = this.currentFilter[key];
 
         return {
@@ -281,6 +278,9 @@ export default {
           }),
         };
       }, {});
+
+      filter = this.buildParentResourceIds(this.resource, filter);
+      return filter;
     },
     getFilters() {
       let filters = [];
@@ -338,6 +338,14 @@ export default {
     },
     "$store.state.api.refresh"(newVal) {
       if (newVal) {
+        this.fetchData();
+      }
+    },
+    "$route.params"(newVal, oldVal) {
+      /**
+       * Reload data when route params change.
+       */
+      if (!isEqual(newVal, oldVal)) {
         this.fetchData();
       }
     },
@@ -443,6 +451,7 @@ export default {
 
       this.$router.push({ query }).catch(() => {});
     },
+
     async fetchData() {
       if (!this.loaded || isEmpty(this.listState.options)) {
         return;
@@ -492,6 +501,8 @@ export default {
       for (let key in newState) {
         this.listState[key] = newState[key];
       }
+
+      this.$emit("update:listState", this.listState);
     },
     getFieldsQuery(resource, sources, fields = {}) {
       sources.forEach((s) => {

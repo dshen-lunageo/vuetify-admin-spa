@@ -35,12 +35,15 @@ export default {
     },
     formState: {
       handler(val) {
+        /**
+         * Invoked when the formState is injected, for form itself and all descendant input components.
+         */
         if (val && this.acceptValue) {
           /**
            * Initialize value & errors
            */
           this.update(
-            this.getItem(get(val.item || val.model, this.uniqueSourceId))
+            this.getItem(get(val.item || val.model, this.uniqueSourceId)), true
           );
         }
       },
@@ -52,7 +55,7 @@ export default {
        */
       if (this.acceptValue) {
         this.update(
-          this.getItem(get(val || this.formState.model, this.uniqueSourceId))
+          this.getItem(get(val || this.formState.model, this.uniqueSourceId)), true
         );
       }
     },
@@ -98,11 +101,19 @@ export default {
        */
       this.$emit("change", value);
     },
-    update(value) {
+    update(value, programmatically = false) {
       /**
        * Update model in the injected form if available.
        */
       if (this.formState) {
+        if (!programmatically) {
+          /**
+           * Log unsaved changes only when updating a form input via user interaction.
+           * TODO: Avoid committing changes when user reset the form.
+           */
+          this.$store.commit('form/logUnsavedChanges');
+        }
+
         this.formState.update({
           source: this.uniqueFormId,
           value,
